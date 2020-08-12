@@ -1,8 +1,15 @@
 const { Model, DataTypes } = require('sequelize');
 const sequelize = require('../config/connection');
+const bcrypt = require('bcrypt');
 
 // create our User model
-class User extends Model {}
+class User extends Model {
+  // set up method to run on instance data (per user) to check password
+  checkPassword(loginPw) {
+    // access this user's properties, including the password, which was stored as a hashed string
+    return bcrypt.compareSync(loginPw, this.password);
+  }
+}
 
 // define table columns and configuration
 User.init(
@@ -45,6 +52,30 @@ User.init(
       }
   },
   {
+    hooks: {
+        // set up beforeCreate lifecycle "hook" functionality
+        // use the beforeCreate() hook to execute the bcrypt hash function on the plaintext password
+        // beforeCreate(userData) {
+
+          // // pass in the userData object that contains the plaintext password in the password property; saltRound value of 10 passed in
+          // return bcrypt.hash(userData.password, 10).then(newUserData => {
+          //   /* The resulting hashed password is then passed to the Promise object as a newUserData object with a hashed password 
+          //   property. The return statement then exits out of the function, returning the hashed password in the newUserData 
+          //   function.*/
+          //   return newUserData
+          // });
+
+          // set up beforeCreate lifecycle "hook" functionality
+          async beforeCreate(newUserData) {
+            newUserData.password = await bcrypt.hash(newUserData.password, 10);
+            return newUserData;
+          },
+          // set up beforeUpdate lifecycle "hook" functionality
+          async beforeUpdate(updatedUserData) {
+            updatedUserData.password = await bcrypt.hash(updatedUserData.password, 10);
+            return updatedUserData;
+          }  
+    },
     // TABLE CONFIGURATION OPTIONS GO HERE (https://sequelize.org/v5/manual/models-definition.html#configuration))
 
     // pass in our imported sequelize connection (the direct connection to our database)
@@ -59,5 +90,6 @@ User.init(
     modelName: 'user'
   }
 );
+
 
 module.exports = User;

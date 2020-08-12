@@ -62,6 +62,38 @@ router.post('/', (req, res) => {
       });
 });
 
+router.post('/login', (req, res) => {
+
+    // expects {email: 'lernantino@gmail.com', password: 'password1234'}
+    User.findOne({
+      // looks for a user with the specified email
+      where: {
+        email: req.body.email
+      }
+    })
+      .then(dbUserData => {
+        if (!dbUserData) {
+          res.status(400).json({ message: 'No user with that email address!' });
+          return;
+        }
+
+        // add comment syntax in front of this line in the .then()
+        // res.json({ user: dbUserData }
+
+        // Verify user
+        const validPassword = dbUserData.checkPassword(req.body.password);
+
+        // a conditional statement to verify whether the user has been verified or not
+        if (!validPassword) {
+            // an error message is sent back to the client, and the return statement exits out of the function immediately
+            res.status(400).json({ message: 'Incorrect password!' });
+            return;
+        }
+        
+            res.json({ user: dbUserData, message: 'You are now logged in!' });
+      });
+});
+
 // PUT /api/users/1
 router.put('/:id', (req, res) => {
   /* expects {username: 'Lernantino', email: 'lernantino@gmail.com', password: 'password1234'}
@@ -77,9 +109,10 @@ router.put('/:id', (req, res) => {
     WHERE id = 1; */
 
     User.update(req.body, {
-        where: {
+      individualHooks: true,
+      where: {
         id: req.params.id
-        }
+      }
     })
         .then(dbUserData => {
         if (!dbUserData[0]) {
