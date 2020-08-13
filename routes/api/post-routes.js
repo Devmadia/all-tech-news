@@ -6,6 +6,8 @@ router.get('/', (req, res) => {
     console.log('======================');
     Post.findAll({
         attributes: ['id', 'post_url', 'title', 'created_at'],
+        /* order property is assigned a nested array that orders by created_at column in descending order
+        to display latest articles first */
         order: [['created_at', 'DESC']], 
         include: [
             {
