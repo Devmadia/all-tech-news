@@ -1,11 +1,18 @@
 const router = require('express').Router();
-const { User } = require('../../models');
+const { User, Post, Vote } = require("../../models");
 
 // GET /api/users -- this is equivalent of "SELECT * FROM users;"
 router.get('/', (req, res) => {
     // Access our User model and run .findAll() method)
     User.findAll({
-      attributes: { exclude: ['password'] }
+      // update the `.findAll()` method's attributes to look like this
+      attributes: [
+        'id',
+        'post_url',
+        'title',
+        'created_at',
+        [sequelize.literal('(SELECT COUNT(*) FROM vote WHERE post.id = vote.post_id)'), 'vote_count']
+      ],
     })
       .then(dbUserData => res.json(dbUserData))
       .catch(err => {
@@ -16,20 +23,36 @@ router.get('/', (req, res) => {
 
 // GET /api/users/1 -- this is equivalent of "SELECT * FROM users WHERE id = 1"
 router.get('/:id', (req, res) => {
-    User.findOne({
-      attributes: { exclude: ['password'] },
-        // where option to find a user where its 'id' value equals whatever 'req.params.id' is
+    Post.findOne({
       where: {
         id: req.params.id
-      }
+      },
+      attributes: [
+        'id',
+        'post_url',
+        'title',
+        'created_at',
+        [sequelize.literal('(SELECT COUNT(*) FROM vote WHERE post.id = vote.post_id)'), 'vote_count']
+      ],
+      include: [
+        {
+          model: Post,
+          attributes: ['id', 'title', 'post_url', 'created_at']
+        },
+        {
+          model: Post,
+          attributes: ['title'],
+          through: Vote,
+          as: 'voted_posts'
+        }
+      ]
     })
-        // incase of a search for a user with an non-existent id value
-      .then(dbUserData => {
-        if (!dbUserData) {
-          res.status(404).json({ message: 'No user found with this id' });
+      .then(dbPostData => {
+        if (!dbPostData) {
+          res.status(404).json({ message: 'No post found with this id' });
           return;
         }
-        res.json(dbUserData);
+        res.json(dbPostData);
       })
       .catch(err => {
         console.log(err);
