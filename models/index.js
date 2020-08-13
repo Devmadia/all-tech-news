@@ -22,4 +22,4 @@ Post.belongsTo(User, {
 });
 
 // import user model data
-module.exports = { User };
+module.exports = { User, Post };
