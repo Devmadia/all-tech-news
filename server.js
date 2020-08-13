@@ -18,8 +18,13 @@ If it doesn't find a table, it'll create it*/
 // turn on connection to db and server
 
 /* "force: false", if it were set to true, it would drop and re-create 
-all of the database tables on startup.  */
+all of the database tables on startup. 
 
+By changing the value of the force property to true, then the database connection 
+must sync with the model definitions and associations. Forcing the sync method to 
+true will make the tables re-create if there are any association changes.*/
+
+// drop the tables so the application can re-create them and implement the associations
 sequelize.sync({ force: false }).then(() => {
   app.listen(PORT, () => console.log('Now listening'));
 });
