@@ -3,6 +3,8 @@ const Vote = require('./Vote');
 
 // require the Post model
 const Post = require("./Post");
+const Comment = require('./Comments');
+
 
 /* A user can make many posts. But a post only belongs to a single user, 
 and never many users. By this relationship definition, we know we have a 
@@ -55,5 +57,23 @@ Post.hasMany(Vote, {
     foreignKey: 'post_id'
 });
 
-// import user, post, and vote model data
-module.exports = { User, Post, Vote };
+// model associations
+Comment.belongsTo(User, {
+    foreignKey: 'user_id'
+});
+
+Comment.belongsTo(Post, {
+    foreignKey: 'post_id'
+});
+  
+User.hasMany(Comment, {
+    foreignKey: 'user_id'
+});
+  
+Post.hasMany(Comment, {
+    foreignKey: 'post_id'
+});
+
+
+// import user, post, vote, and comment model data
+module.exports = { User, Post, Vote, Comment };
