@@ -7,7 +7,6 @@ const sequelize = require('../../config/connection');
 router.get('/', (req, res) => {
     console.log('======================');
     Post.findAll({
-        order: [['created_at', 'DESC']], 
         attributes: [
           'id', 
           'post_url', 
@@ -15,18 +14,18 @@ router.get('/', (req, res) => {
           'created_at',
           [sequelize.literal('(SELECT COUNT(*) FROM vote WHERE post.id = vote.post_id)'), 'vote_count']
         ],
+        order: [['created_at', 'DESC']],
         /* order property is assigned a nested array that orders by created_at column in descending order
         to display latest articles first */
-        
         include: [
-          {
-            model: Comment,
-            attributes: ['id', 'comment_text', 'post_id', 'user_id', 'created_at'],
-            include: {
-              model: User,
-              attributes: ['username']
-            }
-          },
+          // {
+          //   model: Comment,
+          //   attributes: ['id', 'comment_text', 'post_id', 'user_id', 'created_at'],
+          //   include: {
+          //     model: User,
+          //     attributes: ['username']
+          //   }
+          // },
             {
               model: User,
               attributes: ['username']
@@ -46,7 +45,14 @@ router.get('/:id', (req, res) => {
       where: {
         id: req.params.id
       },
-      attributes: ['id', 'post_url', 'title', 'created_at'],
+      attributes: ['id', 'post_url', 'title', 'created_at',
+        [
+          sequelize.literal(
+              '(SELECT COUNT(*) FROM vote WHERE post.id = vote.post_id)'
+          ),
+          'vote_count'
+        ]
+      ],
       include: [
         {
           model: User,
