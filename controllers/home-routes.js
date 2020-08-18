@@ -4,6 +4,7 @@ const router = require('express').Router();
 const sequelize = require('../config/connection');
 const { Post, User, Comment } = require('../models');
 
+// post route
 router.get('/', (req, res) => {
     // query set up to return all posts and their nested properties
     Post.findAll({
@@ -43,5 +44,10 @@ router.get('/', (req, res) => {
           res.status(500).json(err);
         });
 });
+
+// login route
+router.get('/login', (req, res) => {
+    res.render('login');
+  });
 
 module.exports = router;
