@@ -6,6 +6,7 @@ const { Post, User, Comment } = require('../models');
 
 // post route
 router.get('/', (req, res) => {
+    console.log(req.session);
     // query set up to return all posts and their nested properties
     Post.findAll({
         attributes: [
@@ -47,6 +48,11 @@ router.get('/', (req, res) => {
 
 // login route
 router.get('/login', (req, res) => {
+    if (req.session.loggedIn) {
+        res.redirect('/');
+        return;
+    }
+
     res.render('login');
   });
 

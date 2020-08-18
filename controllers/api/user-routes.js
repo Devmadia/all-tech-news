@@ -74,43 +74,56 @@ router.post('/', (req, res) => {
       email: req.body.email,
       password: req.body.password
     })
-      .then(dbUserData => res.json(dbUserData))
-      .catch(err => {
-        console.log(err);
-        res.status(500).json(err);
-      });
+    .then(dbUserData => {
+        req.session.save(() => {
+            req.session.user_id = dbUserData.id;
+            req.session.username = dbUserData.username;
+            req.session.loggedIn = true;
+        
+            res.json(dbUserData);
+        });
+    })
 });
 
 router.post('/login', (req, res) => {
+  User.findOne({
+    where: {
+      email: req.body.email
+    }
+  }).then(dbUserData => {
+    if (!dbUserData) {
+      res.status(400).json({ message: 'No user with that email address!' });
+      return;
+    }
 
-    // expects {email: 'lernantino@gmail.com', password: 'password1234'}
-    User.findOne({
-      // looks for a user with the specified email
-      where: {
-        email: req.body.email
-      }
-    })
-      .then(dbUserData => {
-        if (!dbUserData) {
-          res.status(400).json({ message: 'No user with that email address!' });
-          return;
-        }
+    const validPassword = dbUserData.checkPassword(req.body.password);
 
-        // add comment syntax in front of this line in the .then()
-        // res.json({ user: dbUserData }
+    if (!validPassword) {
+      res.status(400).json({ message: 'Incorrect password!' });
+      return;
+    }
 
-        // Verify user
-        const validPassword = dbUserData.checkPassword(req.body.password);
+    req.session.save(() => {
+      // declare session variables
+      req.session.user_id = dbUserData.id;
+      req.session.username = dbUserData.username;
+      req.session.loggedIn = true;
 
-        // a conditional statement to verify whether the user has been verified or not
-        if (!validPassword) {
-            // an error message is sent back to the client, and the return statement exits out of the function immediately
-            res.status(400).json({ message: 'Incorrect password!' });
-            return;
-        }
-        
-            res.json({ user: dbUserData, message: 'You are now logged in!' });
-      });
+      res.json({ user: dbUserData, message: 'You are now logged in!' });
+    });
+  });
+});
+
+// logout route
+router.post('/logout', (req, res) => {
+  if (req.session.loggedIn) {
+    req.session.destroy(() => {
+      res.status(204).end();
+    });
+  }
+  else {
+    res.status(404).end();
+  }
 });
 
 // PUT /api/users/1
