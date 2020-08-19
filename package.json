@@ -4,7 +4,9 @@
   "description": "A news-based site with a coding theme.",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "test": "jest",
+    "start": "node server.js",
+    "seeds": "node seeds/index.js"
   },
   "repository": {
     "type": "git",
@@ -30,5 +32,8 @@
     "express-session": "^1.17.1",
     "mysql2": "^2.1.0",
     "sequelize": "^6.3.4"
+  },
+  "devDependencies": {
+    "jest": "^25.1.0"
   }
 }

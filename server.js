@@ -4,6 +4,9 @@ const sequelize = require('./config/connection');
 const path = require('path');
 const session = require('express-session');
 
+const app = express();
+const PORT = process.env.PORT || 3001;
+
 // handlebars template engine
 const exphbs = require('express-handlebars');
 
@@ -19,10 +22,6 @@ const sess = {
     db: sequelize
   })
 };
-
-
-const app = express();
-const PORT = process.env.PORT || 3001;
 
 // handlebars template engine
 const hbs = exphbs.create({});
