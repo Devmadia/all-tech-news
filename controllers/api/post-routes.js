@@ -4,7 +4,7 @@ const { Post, User, Vote, Comment } = require('../../models');
 const sequelize = require('../../config/connection');
 
 // get all users
-router.get('/', (req, res) => {
+router.get('/', withAuth, (req, res) => {
     console.log('======================');
     Post.findAll({
         attributes: [
@@ -40,7 +40,7 @@ router.get('/', (req, res) => {
 });
 
 // get-one query that will be used as a request parameter
-router.get('/:id', (req, res) => {
+router.get('/:id', withAuth, (req, res) => {
     Post.findOne({
       where: {
         id: req.params.id
@@ -74,7 +74,7 @@ router.get('/:id', (req, res) => {
 });
 
 // Create a Post
-router.post('/', (req, res) => {
+router.post('/', withAuth, (req, res) => {
     // expects {title: 'Taskmaster goes public!', post_url: 'https://taskmaster.com/press', user_id: 1}
     Post.create({
       title: req.body.title,
@@ -89,7 +89,7 @@ router.post('/', (req, res) => {
 });
 
 // PUT /api/posts/upvote
-router.put('/upvote', (req, res) => {
+router.put('/upvote', withAuth, (req, res) => {
   // custom static method created in models/Post.js
   // Post.upvote(req.body, { Vote })
   //   .then(updatedPostData => res.json(updatedPostData))
@@ -111,7 +111,7 @@ router.put('/upvote', (req, res) => {
 });
 
 // Update a post's title
-router.put('/:id', (req, res) => {
+router.put('/:id', withAuth, (req, res) => {
     Post.update(
       {
         title: req.body.title
@@ -136,7 +136,7 @@ router.put('/:id', (req, res) => {
 });
 
 // Delete a Post
-router.delete('/:id', (req, res) => {
+router.delete('/:id', withAuth, (req, res) => {
     Post.destroy({
       where: {
         id: req.params.id
